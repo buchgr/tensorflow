@@ -42,6 +42,8 @@ load("//third_party/pthreadpool:workspace.bzl", pthreadpool = "repo")
 load("//third_party/sobol_data:workspace.bzl", sobol_data = "repo")
 load("//third_party/vulkan_headers:workspace.bzl", vulkan_headers = "repo")
 
+load("//third_party/toolchains/remote_config:rbe_repos.bzl", "tensorflow_rbe_repos")
+
 def initialize_third_party():
     """ Load third party repositories.  See above load() statements. """
     FP16()
@@ -80,6 +82,19 @@ def tf_workspace(path_prefix = "", tf_repo_name = ""):
 # Define all external repositories required by TensorFlow
 def tf_repositories(path_prefix = "", tf_repo_name = ""):
     """All external dependencies for TF builds."""
+
+    # Remote Configuration Repos
+    tensorflow_rbe_repos(
+        name = "ubuntu16.04-py3-gcc7_manylinux2010-cuda10.0-cudnn7-tensorrt5.1",
+        compiler = "/dt7/usr/bin/gcc",
+        compiler_prefix = "/usr/bin",
+        cuda_version = "10.0",
+        cudnn_version = "7",
+        os = "ubuntu16.04-manylinux2010",
+        python_version = "3",
+        tensorrt_install_path = "/usr",
+        tensorrt_version = "5.1",
+    )
 
     # Note that we check the minimum bazel version in WORKSPACE.
     clang6_configure(name = "local_config_clang6")

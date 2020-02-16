@@ -321,11 +321,6 @@ build:xla --define=with_xla_support=true
 # WARNING: THESE OPTIONS WONT WORK IF YOU DO NOT HAVE PROPER AUTHENTICATION AND PERMISSIONS
 build:rbe --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 build:rbe --auth_enabled=true
-build:rbe --auth_scope=https://www.googleapis.com/auth/cloud-source-tools
-build:rbe --bes_backend=buildeventservice.googleapis.com
-build:rbe --bes_best_effort=false
-build:rbe --bes_results_url="https://source.cloud.google.com/results/invocations"
-build:rbe --bes_timeout=600s
 build:rbe --define=EXECUTOR=remote
 build:rbe --flaky_test_attempts=3
 build:rbe --jobs=200
