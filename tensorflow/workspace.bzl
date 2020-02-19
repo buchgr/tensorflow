@@ -6,7 +6,7 @@ load("//third_party/tensorrt:tensorrt_configure.bzl", "tensorrt_configure")
 load("//third_party/nccl:nccl_configure.bzl", "nccl_configure")
 load("//third_party/mkl:build_defs.bzl", "mkl_repository")
 load("//third_party/git:git_configure.bzl", "git_configure")
-load("//third_party/py:python_configure.bzl", "python_configure")
+load("//third_party/py:python_configure.bzl", "python_configure", "remote_python_configure")
 load("//third_party/sycl:sycl_configure.bzl", "sycl_configure")
 load("//third_party/systemlibs:syslibs_configure.bzl", "syslibs_configure")
 load("//third_party/toolchains/remote:configure.bzl", "remote_execution_configure")
@@ -80,6 +80,66 @@ def tf_workspace(path_prefix = "", tf_repo_name = ""):
 # Define all external repositories required by TensorFlow
 def tf_repositories(path_prefix = "", tf_repo_name = ""):
     """All external dependencies for TF builds."""
+
+    remote_python_configure(
+        name = "remote_linux_python_configure",
+        exec_properties = {
+            "container-image" : "docker://gcr.io/tensorflow-testing/nosla-ubuntu16.04@sha256:b90dcf2f35f3354909f4491bdf019c110b4b4d95ef0395ebf178bc5d523a4208",
+            "OSFamily" : "Linux",
+            "ISA" : "x86-64",
+        },
+    )
+
+    remote_python_configure(
+        name = "remote_windows_python_configure",
+        exec_properties = {
+            "container-image" : "",
+            "OSFamily": "Windows",
+            "sandbox" : "none",
+        },
+        # exec_properties = {
+        #     "container-image" : "docker://gcr.io/tensorflow-testing/tf-win-rbe@sha256:6bee34693b356baf3b0ba700f4eb27a23d3a04e0c47cbb9de813c61ef30c0b9f",
+        #     "OSFamily" : "Windows",
+        # },
+    )
+
+
+
+    cuda_configure(
+        name = "remote_config_linux_cuda",
+        exec_properties = {
+            "container-image" : "docker://gcr.io/tensorflow-testing/nosla-cuda10.1-cudnn7-ubuntu16.04-manylinux2010@sha256:23db3de806535c9d26170567ba55cf653e503057345a0e9c129124c08ea118a3",
+            "OSFamily": "Linux",
+            "ISA" : "x86-64",
+        },
+    )
+
+    cuda_configure(
+        name = "remote_config_cuda",
+        exec_properties = {
+            "container-image" : "",
+            "OSFamily": "Windows",
+            "sandbox" : "none",
+        },
+    )
+
+    tensorrt_configure(
+        name = "remote_config_tensorrt",
+        exec_properties = {
+            "container-image" : "docker://gcr.io/tensorflow-testing/nosla-cuda10.1-cudnn7-ubuntu16.04-manylinux2010@sha256:f8e15f08cb501e5f2de3dc450f614609fd3ed19bde74b153fa66d14b2307610c",
+            "OSFamily": "Linux",
+            "ISA" : "x86-64",
+        },
+    )
+
+    rocm_configure(
+        name = "remote_config_rocm",
+        exec_properties = {
+            "container-image" : "docker://gcr.io/tensorflow-testing/nosla-rocm-ubuntu16.04@sha256:e645447dd6127325f3e97b8bf23424f637a8579d963b34fcc6772cf7cfaa0ebe",
+            "OSFamily": "Linux",
+            "ISA" : "x86-64",
+        },
+    )
 
     # Note that we check the minimum bazel version in WORKSPACE.
     clang6_configure(name = "local_config_clang6")

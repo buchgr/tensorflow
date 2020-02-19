@@ -24,7 +24,7 @@ def which(repository_ctx, program_name):
     if is_windows(repository_ctx):
         if not program_name.endswith(".exe"):
             program_name = program_name + ".exe"
-        result = execute(repository_ctx, ["where.exe", program_name])
+        result = execute(repository_ctx, ["C:\\Windows\\System32\\where.exe", program_name])
     else:
         result = execute(repository_ctx, ["which", program_name])
     return result.stdout.rstrip()
@@ -90,7 +90,7 @@ def read_dir(repository_ctx, src_dir):
         src_dir = src_dir.replace("/", "\\")
         find_result = execute(
             repository_ctx,
-            ["cmd.exe", "/c", "dir", src_dir, "/b", "/s", "/a-d"],
+            ["C:\\Windows\\System32\\cmd.exe", "/c", "dir", src_dir, "/b", "/s", "/a-d"],
             empty_stdout_fine = True,
         )
 
@@ -121,7 +121,7 @@ def get_environ(repository_ctx, name, default_value = None):
     if is_windows(repository_ctx):
         result = execute(
             repository_ctx,
-            ["cmd.exe", "/c", "echo", "%" + name + "%"],
+            ["C:\\Windows\\System32\\cmd.exe", "/c", "echo", "%" + name + "%"],
             empty_stdout_fine = True,
         )
     else:
@@ -166,6 +166,19 @@ def is_windows(repository_ctx):
 
     return os_name.lower().find("windows") != -1
 
+def get_cpu_value(repository_ctx):
+    """Returns the name of the host operating system.
+
+    Args:
+      repository_ctx: The repository context.
+    Returns:
+      A string containing the name of the host operating system.
+    """
+    if is_windows(repository_ctx):
+        return "Windows"
+    result = raw_exec(repository_ctx, ["uname", "-s"])
+    return result.stdout.strip()
+
 def execute(
         repository_ctx,
         cmdline,
@@ -209,3 +222,41 @@ def raw_exec(repository_ctx, cmdline):
       The 'exec_result' of repository_ctx.execute().
     """
     return repository_ctx.execute(cmdline)
+
+def files_exist(repository_ctx, paths, bash_bin = None):
+    """Checks which files in paths exists.
+
+    Args:
+      repository_ctx: the repository_ctx
+      paths: a list of paths
+      bash_bin: path to the bash interpreter
+
+    Returns:
+      Returns a list of Bool. True means that the path at the
+      same position in the paths list exists.
+    """
+    if bash_bin == None:
+        bash_bin = get_bash_bin(repository_ctx)
+
+    cmd_tpl = "[ -e \"%s\" ] && echo True || echo False"
+    cmds = [cmd_tpl % path for path in paths]
+    cmd = " ; ".join(cmds)
+
+    stdout = execute(repository_ctx, [bash_bin, "-c", cmd]).stdout.strip()
+    return [val == "True" for val in stdout.splitlines()]
+
+def realpath(repository_ctx, path, bash_bin = None):
+    """Returns the result of "realpath path".
+
+    Args:
+      repository_ctx: the repository_ctx
+      path: a path on the file system
+      bash_bin: path to the bash interpreter
+
+    Returns:
+      Returns the result of "realpath path"
+    """
+    if bash_bin == None:
+        bash_bin = get_bash_bin(repository_ctx)
+
+    return execute(repository_ctx, [bash_bin, "-c", "realpath %s" % path]).stdout.strip()
