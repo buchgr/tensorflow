@@ -490,3 +490,27 @@ try-import %workspace%/.tf_configure.bazelrc
 
 # Put user-specific options in .bazelrc.user
 try-import %workspace%/.bazelrc.user
+
+
+build:gunan --google_default_credentials
+build:gunan --bes_backend=buildeventservice.googleapis.com
+build:gunan --bes_results_url="https://source.cloud.google.com/results/invocations"
+build:gunan --bes_timeout=600s
+build:gunan --define=EXECUTOR=remote
+build:gunan --distinct_host_configuration=false
+build:gunan --flaky_test_attempts=3
+build:gunan --remote_executor=grpcs://remotebuildexecution.googleapis.com
+build:gunan --remote_timeout=3600
+build:gunan --spawn_strategy=remote,worker,standalone,local
+test:gunan --test_env=USER=anon
+# Attempt to minimize the amount of data transfer between bazel and the remote
+# workers:
+build:gunan --remote_download_toplevel
+build:gunan --project_id=tensorflow-rbe
+build:gunan --remote_instance_name=projects/tensorflow-rbe/instances/default_instance
+build:gunan --extra_execution_platforms="@org_tensorflow//third_party/toolchains/preconfig/win_1803:rbe_windows_1803_gpu"
+build:gunan --host_platform="@org_tensorflow//third_party/toolchains/preconfig/win_1803:rbe_windows_1803_gpu"
+build:gunan --platforms="@org_tensorflow//third_party/toolchains/preconfig/win_1803:rbe_windows_1803_gpu"
+build:gunan --dynamic_mode=off
+build:gunan --jobs=100
+build:gunan --define=override_eigen_strong_inline=true
