@@ -1003,7 +1003,38 @@ def _impl(ctx):
             ctx = ctx,
             features = _features(cpu, compiler, ctx),
             action_configs = action_configs,
-            artifact_name_patterns = [],
+            artifact_name_patterns = [
+            artifact_name_pattern(
+                category_name = "object_file",
+                prefix = "",
+                extension = ".obj",
+            ),
+            artifact_name_pattern(
+                category_name = "static_library",
+                prefix = "",
+                extension = ".lib",
+            ),
+            artifact_name_pattern(
+                category_name = "alwayslink_static_library",
+                prefix = "",
+                extension = ".lo.lib",
+            ),
+            artifact_name_pattern(
+                category_name = "executable",
+                prefix = "",
+                extension = ".exe",
+            ),
+            artifact_name_pattern(
+                category_name = "dynamic_library",
+                prefix = "",
+                extension = ".dll",
+            ),
+            artifact_name_pattern(
+                category_name = "interface_library",
+                prefix = "",
+                extension = ".if.lib",
+            ),
+        ],
             cxx_builtin_include_directories = ctx.attr.builtin_include_directories,
             toolchain_identifier = toolchain_identifier,
             host_system_name = "local",
